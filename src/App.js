@@ -1,23 +1,53 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import Movie from './components/Movies/Movie';
+import { Tabs } from 'antd';
+import RatedMovie from './components/Rated/Rated';
 
 function App() {
+  const [activeKey, setActiveKey] = useState('search');
+  const [sessionId, getSessionId] = useState(null)
+
+  const createGuestSession = () => {
+    fetch('https://api.themoviedb.org/3/authentication/guest_session/new?api_key=514672082404a98e787157e73017cdb5')
+      .then((res) => res.json())
+      .then((json) => {
+        getSessionId(json.guest_session_id)
+      })
+  }
+
+  const handleTabChange = (key) => {
+    setActiveKey(key);
+  };
+
+  const items = [
+    {
+      key: 'search',
+      label: 'Search',
+      children: <Movie sessionId={sessionId} />,
+    },
+    {
+      key: 'rated',
+      label: 'Rated',
+      children: <RatedMovie sessionId={sessionId} />,
+    }
+  ]
+
+  useEffect(() => {
+    createGuestSession();
+  }, [])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="wrapper">
+        <Tabs
+          defaultActiveKey="search"
+          centered
+          items={items}
+          size="large"
+          onChange={handleTabChange}
+        />
+      </div>
     </div>
   );
 }
